@@ -68,7 +68,6 @@ public class SimpleRecyclerAdapter extends RecyclerView.Adapter<SimpleRecyclerAd
     @Override
     public int getItemCount() {
         if (isHomesList){
-            Log.d("size", String.valueOf(homeActivitiesList.size()));
             return homeActivitiesList == null ? 0: homeActivitiesList.size();
         } else {
             return versionModel == null ? 0:versionModel.size();
