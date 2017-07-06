@@ -2,6 +2,7 @@ package com.example.vietis.designsample;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
@@ -21,8 +22,10 @@ public class MainActivity extends AppCompatActivity {
     public static final String PREF_USER_FIRST_TIME = "user_first_time";
     boolean isUserFirstTime;
     private Toolbar toolbar;
+    private SwipeRefreshLayout pullToRefresh;
     private RecyclerView recyclerView;
     SimpleRecyclerAdapter adapter;
+
     Intent intent;
 
     @Override
@@ -30,10 +33,10 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
         isUserFirstTime = Boolean.valueOf(Utils.readSharedSetting(MainActivity.this, PREF_USER_FIRST_TIME, "true"));
-        Intent introIntent = new Intent(MainActivity.this, PagerActivity.class);
+        final Intent introIntent = new Intent(MainActivity.this, PagerActivity.class);
         introIntent.putExtra(PREF_USER_FIRST_TIME, isUserFirstTime);
 
-        if (isUserFirstTime){
+        if (isUserFirstTime) {
             startActivity(introIntent);
         }
 
@@ -46,26 +49,53 @@ public class MainActivity extends AppCompatActivity {
 
         setSupportActionBar(toolbar);
         getSupportActionBar().setTitle("Design Sample");
+        pullToRefresh = (SwipeRefreshLayout) findViewById(R.id.pull_to_refresh);
         recyclerView = (RecyclerView) findViewById(R.id.main_recycler);
-        recyclerView.setHasFixedSize(true);
+
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setItemAnimator(new DefaultItemAnimator());
+        recyclerView.setHasFixedSize(true);
 
-        if (adapter == null){
-            adapter = new SimpleRecyclerAdapter(this);
+        if (adapter == null) {
+            adapter = new SimpleRecyclerAdapter(MainActivity.this);
             recyclerView.setAdapter(adapter);
         }
 
         adapter.SetOnItemClickListener(new SimpleRecyclerAdapter.OnItemClickListener() {
             @Override
             public void OnItemClick(View view, int position) {
-                switch (position){
-                    /*case 0:
+                Toast.makeText(MainActivity.this, "Item " + position, Toast.LENGTH_SHORT).show();
+                switch (position) {
+                    case 0:
                         intent = new Intent(MainActivity.this, FabHideActivity.class);
-                        break;*/
+                        break;
+                }
+
+                if (intent != null) {
+                    startActivity(intent);
                 }
             }
         });
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        pullToRefresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                if (adapter == null) {
+                    adapter = new SimpleRecyclerAdapter(MainActivity.this);
+                    recyclerView.setAdapter(adapter);
+                }
+                stopRefresh();
+            }
+        });
+    }
+
+    public void stopRefresh() {
+        pullToRefresh.setRefreshing(false);
     }
 
     @Override
@@ -78,7 +108,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
-        if (id == R.id.action_settings){
+        if (id == R.id.action_settings) {
             Toast.makeText(MainActivity.this, "Settings", Toast.LENGTH_SHORT).show();
             return true;
         }
