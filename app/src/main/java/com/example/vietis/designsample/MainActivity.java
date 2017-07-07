@@ -8,12 +8,14 @@ import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.support.v7.widget.helper.ItemTouchHelper;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
 import com.example.vietis.designsample.adapter.SimpleRecyclerAdapter;
+import com.example.vietis.designsample.adapter.SwipeHelper;
 import com.example.vietis.designsample.utils.Utils;
 
 public class MainActivity extends AppCompatActivity {
@@ -60,6 +62,10 @@ public class MainActivity extends AppCompatActivity {
             adapter = new SimpleRecyclerAdapter(MainActivity.this);
             recyclerView.setAdapter(adapter);
         }
+
+        ItemTouchHelper.Callback callback = new SwipeHelper(adapter);
+        ItemTouchHelper touchHelper = new ItemTouchHelper(callback);
+        touchHelper.attachToRecyclerView(recyclerView);
 
         adapter.SetOnItemClickListener(new SimpleRecyclerAdapter.OnItemClickListener() {
             @Override
